@@ -16,7 +16,11 @@ void f_matrix_copy(f_matrix *out, f_matrix *a);
 void f_matrix_add(f_matrix *out, f_matrix *a, f_matrix *b);
 void f_matrix_sub(f_matrix *out, f_matrix *a, f_matrix *b);
 void f_matrix_scale(f_matrix *a, f32 c);
+
 void f_matrix_mult(f_matrix *out, f_matrix *a, f_matrix *b, bool a_transpose, bool b_transpose);
+void f_matrix_mult_gpu(f_matrix *out, f_matrix *a, f_matrix *b, bool a_transpose, bool b_transpose);
+void f_matrix_hadamard_prod(f_matrix *out, f_matrix *a, f_matrix *b, bool a_transpose, bool b_transpose);
+
 void f_matrix_transpose(f_matrix *a);
 void f_matrix_transpose_copy(f_matrix *out, f_matrix *a);
 

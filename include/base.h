@@ -21,3 +21,9 @@ typedef double      f64;
 
 #define MAX(a, b) ( (a) > (b) ? (a) : (b))
 #define MIN(a, b) ( (a) > (b) ? (b) : (a))
+
+#define NUM_FLOATS(n) ( (u64)n*sizeof(f32) )
+#define TICK struct timespec start, end; clock_gettime(CLOCK_MONOTONIC, &start);
+#define TOCK clock_gettime(CLOCK_MONOTONIC, &end); \
+             printf("Exec time: %0.3f ms\n", ((end.tv_sec - start.tv_sec) + \
+             (end.tv_nsec - start.tv_nsec) / 1e9) * 1000);
