@@ -1,4 +1,6 @@
 #include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
 #include "Accelerate/Accelerate.h"
 #include "../include/matrix.h"
 
@@ -18,7 +20,7 @@ void f_matrix_copy(f_matrix *out, f_matrix *a) {
     u64 rows = a->rows;
     u64 cols = a->cols;
     for (u64 i = 0; i < rows; i++) {
-        for (u64 j = i; j < cols; j++) {
+        for (u64 j = 0; j < cols; j++) {
             out->data[i*cols + j] = a->data[i*cols + j];
         }
     }
@@ -68,6 +70,17 @@ void f_matrix_scale(f_matrix *out, f32 c) {
     return;
 }
 
+#ifdef __APPLE__ 
+void f_matrix_mult(f_matrix *out, f_matrix *a, f_matrix *b, bool a_transpose, bool b_transpose) {
+    int M = a->rows, K = a->cols, N = b->cols;
+
+    cblas_sgemm(CblasRowMajor, (a_transpose ? CblasTrans : CblasNoTrans), (b_transpose ? CblasTrans : CblasNoTrans),
+                M, N, K, 
+                1.0f, a->data, K, 
+                b->data, N, 0.0f, 
+                out->data, N);
+}
+#else
 void f_matrix_mult(f_matrix *out, f_matrix *a, f_matrix *b, bool a_transpose, bool b_transpose) {
     if (a_transpose && b_transpose) {
         if (a->rows != b->cols || a->cols != out->rows || b->rows != out->cols) { 
@@ -142,15 +155,7 @@ void f_matrix_mult(f_matrix *out, f_matrix *a, f_matrix *b, bool a_transpose, bo
     }    
     return;
 }
-void f_matrix_mult_gpu(f_matrix *out, f_matrix *a, f_matrix *b, bool a_transpose, bool b_transpose) {
-    int M = a->rows, K = a->cols, N = b->cols;
-
-    cblas_sgemm(CblasRowMajor, (a_transpose ? CblasTrans : CblasNoTrans), (b_transpose ? CblasTrans : CblasNoTrans),
-                M, N, K, 
-                1.0f, a->data, K, 
-                b->data, N, 0.0f, 
-                out->data, N);
-}
+#endif
 
 void f_matrix_hadamard_prod(f_matrix *out, f_matrix *a, f_matrix *b, bool a_transpose, bool b_transpose) {
     if (a_transpose && b_transpose) {
@@ -208,20 +213,6 @@ void f_matrix_hadamard_prod(f_matrix *out, f_matrix *a, f_matrix *b, bool a_tran
     return;
 }
 
-void f_matrix_transpose(f_matrix *a) {
-    u64 rows = a->rows;
-    u64 cols = a->cols;
-    for (u64 i = 0; i < rows; i++) {
-        for (u64 j = i; j < cols; j++) {
-            f32 temp = a->data[i*cols + j];
-            a->data[i*cols + j] = a->data[j*cols + i];
-            a->data[j*cols + i] = temp;
-        }
-    }
-    a->rows = cols;
-    a->cols = rows;
-    return;
-}
 
 void f_matrix_transpose_copy(f_matrix *out, f_matrix *a) {
     if (out->rows != a->cols || out->cols != a->rows) {
@@ -242,7 +233,7 @@ void f_matrix_apply_func(f_func function, f_matrix* a) {
     u64 rows = a->rows;
     u64 cols = a->cols;
     for (u64 i = 0; i < rows; i++) {
-        for (u64 j = i; j < cols; j++) {
+        for (u64 j = 0; j < cols; j++) {
             a->data[i*cols + j] = function(a->data[i*cols + j]);
         }
     }

@@ -1,7 +1,7 @@
 #pragma once
 #include "../include/base.h"
 
-void random_seed();
+void random_init();
 
 u64 random_uint(u64 min, u64 max);
 i64 random_int(i64 min, i64 max);
